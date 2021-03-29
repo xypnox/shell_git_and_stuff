@@ -7,9 +7,6 @@ branch=`date +%F`
 branch_exists=`git show-ref refs/heads/${branch}`
 num_changes=`git status --porcelain=v1 2>/dev/null | wc -l`
 
-yesterday_branch_merged=``
-
-
 git-is-merged () {
   # I am using the following bash function like: 
   # git-is-merged develop feature/new-feature
