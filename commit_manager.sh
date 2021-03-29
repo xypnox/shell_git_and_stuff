@@ -79,7 +79,7 @@ prev_check() {
     
     # Delete prev day's branch
     git checkout main
-    git branch -d $prev_branch
+    git branch -D $prev_branch
     git push --delete origin $prev_branch
 
   else
