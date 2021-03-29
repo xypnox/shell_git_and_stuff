@@ -99,6 +99,7 @@ main() {
     commit_and_push $branch
   else
     echo "Daily Branch doesn't exist!"
+    git checkout main
     git checkout -b $branch
     commit_and_push $branch
   fi
