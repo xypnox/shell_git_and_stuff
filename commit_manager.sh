@@ -1,4 +1,6 @@
 #!/bin/bash
+directory="/home/xypnox/Projects/scratch/shell_git_and_stuff/"
+cd $directory
 
 branch=`date +%F`
 
@@ -7,7 +9,6 @@ num_changes=`git status --porcelain=v1 2>/dev/null | wc -l`
 
 yesterday_branch_merged=``
 
-directory="/home/xypnox/Projects/scratch/shell_git_and_stuff/"
 
 git-is-merged () {
   # I am using the following bash function like: 
@@ -92,7 +93,6 @@ prev_check() {
 }
 
 main() {
-  cd $directory
 
   prev_check
 
@@ -100,7 +100,6 @@ main() {
     echo 'Daily Branch exists!'
     # Commit all stuff here
     commit_and_push $branch
-    # push branch
   else
     echo "Daily Branch doesn't exist!"
     git checkout -b $branch
