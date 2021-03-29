@@ -1,7 +1,9 @@
 #!/bin/bash
 directory="/home/xypnox/Projects/scratch/shell_git_and_stuff/"
 cd $directory
-export DISPLAY=:0.0
+export DISPLAY=:0
+# dbus-launch
+# export $(dbus-launch)
 branch=`date +%F`
 
 branch_exists=`git show-ref refs/heads/${branch}`
