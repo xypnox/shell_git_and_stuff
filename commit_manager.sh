@@ -1,8 +1,8 @@
 #!/bin/bash
 
 branch=`date +%F`
-prev_branch=`date -d "yesterday" +%F`
-exists=`git show-ref refs/heads/${branch}`
+
+branch_exists=`git show-ref refs/heads/${branch}`
 num_changes=`git status --porcelain=v1 2>/dev/null | wc -l`
 
 yesterday_branch_merged=``
@@ -28,9 +28,7 @@ git-is-merged () {
 }
 
 
-create_normal_commit() {
-  git checkout $1
-  
+create_commit() {
   local gstatus=`git status --porcelain`
 
   if [ ${#gstatus} -ne 0 ]
@@ -41,30 +39,68 @@ create_normal_commit() {
   fi
 }
 
-# create_squash_commit() {
-# # Create squash commit
-# }
 
+commit_and_push() {
+  git checkout $1
+  
+  create_commit
 
+  git push origin $1
+}
+
+create_squash_commit_push() {
+  # Create squash commit from $1
+  git checkout main
+
+  git merge --squash $1
+
+  create_commit
+
+  git push origin main
+}
+
+prev_check() {
+  local prev_branch=`date -d "yesterday" +%F`
+  local prev_branch_exists=`git show-ref refs/heads/${prev_branch}`
+
+  if [ -n "$prev_branch_exists" ]; then
+    echo "Prev branch not deleted, processing!"
+    
+    git-is-merged main $prev_branch
+    is_merged=$?
+    echo $is_merged
+    
+    if [ $is_merged -eq 0 ]; then
+      echo "$prev_branch merged"
+    else
+      echo "$prev_branch not merged"
+      create_squash_commit_push $prev_branch
+    fi
+    
+    # Delete prev day's branch
+    git checkout main
+    git branch -d $prev_branch
+    git push --delete origin $prev_branch
+
+  else
+    echo "Prev branch doesn't exist skipping"
+  fi
+  
+}
 
 main() {
-  is_megrged=`git-is-merged main $branch`
-  if [ -z is_megrged ]; then
-    echo "Daily merged"
-  else
-    echo "Daily not merged"
-  fi
+  prev_check
 
-  # if [ -n "$exists" ]; then
-  #   echo 'Daily Branch exists!'
-  #   git checkout $branch
-  #   # Commit all stuff here
-  #   create_normal_commit $branch
-  #   # push branch
-  # else
-  #   echo "Daily Branch doesn't exist!"
-  #   git checkout -b $branch
-  # fi
+  if [ -n "$branch_exists" ]; then
+    echo 'Daily Branch exists!'
+    # Commit all stuff here
+    commit_and_push $branch
+    # push branch
+  else
+    echo "Daily Branch doesn't exist!"
+    git checkout -b $branch
+    commit_and_push $branch
+  fi
 }
 
 main
