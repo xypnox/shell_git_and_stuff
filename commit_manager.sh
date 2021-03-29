@@ -65,17 +65,7 @@ prev_check() {
 
   if [ -n "$prev_branch_exists" ]; then
     echo "Prev branch not deleted, processing!"
-    
-    git-is-merged main $prev_branch
-    is_merged=$?
-    echo $is_merged
-    
-    if [ $is_merged -eq 0 ]; then
-      echo "$prev_branch merged"
-    else
-      echo "$prev_branch not merged"
-      create_squash_commit_push $prev_branch
-    fi
+    create_squash_commit_push $prev_branch
     
     # Delete prev day's branch
     git checkout main
