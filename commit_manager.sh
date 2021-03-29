@@ -102,8 +102,8 @@ main() {
     git checkout main
     git checkout -b $branch
     commit_and_push $branch
-    notify-send -a commit_manager "Script ran successfully"
   fi
+  notify-send -a commit_manager "Script ran successfully"
 }
 
 main
