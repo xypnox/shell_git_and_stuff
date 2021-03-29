@@ -31,6 +31,7 @@ git-is-merged () {
 
 
 create_commit() {
+  pwd
   local gstatus=`git status --porcelain`
 
   if [ ${#gstatus} -ne 0 ]
