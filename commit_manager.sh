@@ -7,6 +7,8 @@ num_changes=`git status --porcelain=v1 2>/dev/null | wc -l`
 
 yesterday_branch_merged=``
 
+directory="/home/xypnox/Projects/scratch/shell_git_and_stuff/"
+
 git-is-merged () {
   # I am using the following bash function like: 
   # git-is-merged develop feature/new-feature
@@ -89,6 +91,8 @@ prev_check() {
 }
 
 main() {
+  cd $directory
+
   prev_check
 
   if [ -n "$branch_exists" ]; then
