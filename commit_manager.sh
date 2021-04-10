@@ -1,9 +1,7 @@
 #!/bin/bash
 directory="/home/xypnox/Projects/scratch/shell_git_and_stuff/"
 cd $directory
-# export DISPLAY=:0
-# dbus-launch
-export $(dbus-launch)
+
 branch=`date +%F`
 
 branch_exists=`git show-ref refs/heads/${branch}`
@@ -31,7 +29,6 @@ git-is-merged () {
 
 
 create_commit() {
-  pwd
   local gstatus=`git status --porcelain`
 
   if [ ${#gstatus} -ne 0 ]
@@ -49,6 +46,14 @@ commit_and_push() {
   create_commit
 
   git push origin $1
+}
+
+commit_and_push_set_tracking() {
+  git checkout $1
+  
+  create_commit
+
+  git push -u origin $1
 }
 
 create_squash_commit_push() {
@@ -77,6 +82,7 @@ prev_check() {
       echo "$prev_branch merged"
     else
       echo "$prev_branch not merged"
+      commit_and_push $prev_branch
       create_squash_commit_push $prev_branch
     fi
     
@@ -93,6 +99,8 @@ prev_check() {
 
 main() {
 
+  echo -e "\n\n===Running Script===\n :at $0 \n :on $(date) \n :with $num_changes changes \n"
+
   prev_check
 
   if [ -n "$branch_exists" ]; then
@@ -103,9 +111,8 @@ main() {
     echo "Daily Branch doesn't exist!"
     git checkout main
     git checkout -b $branch
-    commit_and_push $branch
+    commit_and_push_set_tracking $branch
   fi
-  notify-send -a commit_manager "Script ran successfully"
 }
 
 main
