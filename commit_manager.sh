@@ -1,11 +1,11 @@
 #!/bin/bash
+directory="/home/xypnox/Projects/scratch/shell_git_and_stuff/"
+cd $directory
 
 branch=`date +%F`
 
 branch_exists=`git show-ref refs/heads/${branch}`
 num_changes=`git status --porcelain=v1 2>/dev/null | wc -l`
-
-yesterday_branch_merged=``
 
 git-is-merged () {
   # I am using the following bash function like: 
@@ -48,6 +48,14 @@ commit_and_push() {
   git push origin $1
 }
 
+commit_and_push_set_tracking() {
+  git checkout $1
+  
+  create_commit
+
+  git push -u origin $1
+}
+
 create_squash_commit_push() {
   # Create squash commit from $1
   git checkout main
@@ -65,11 +73,21 @@ prev_check() {
 
   if [ -n "$prev_branch_exists" ]; then
     echo "Prev branch not deleted, processing!"
-    create_squash_commit_push $prev_branch
+    git-is-merged main $prev_branch
+    is_merged=$?
+    echo $is_merged
+    
+    if [ $is_merged -eq 0 ]; then
+      echo "$prev_branch merged"
+    else
+      echo "$prev_branch not merged"
+      commit_and_push $prev_branch
+      create_squash_commit_push $prev_branch
+    fi
     
     # Delete prev day's branch
     git checkout main
-    git branch -d $prev_branch
+    git branch -D $prev_branch
     git push --delete origin $prev_branch
 
   else
@@ -79,17 +97,20 @@ prev_check() {
 }
 
 main() {
+
+  echo -e "\n\n===Running Script===\n :at $0 \n :on $(date) \n :with $num_changes changes \n"
+
   prev_check
 
   if [ -n "$branch_exists" ]; then
     echo 'Daily Branch exists!'
     # Commit all stuff here
     commit_and_push $branch
-    # push branch
   else
     echo "Daily Branch doesn't exist!"
+    git checkout main
     git checkout -b $branch
-    commit_and_push $branch
+    commit_and_push_set_tracking $branch
   fi
 }
 
